@@ -21,22 +21,19 @@ public class TimeServlet extends HttpServlet {
         PrintWriter printWriter = resp.getWriter();
         printWriter.write("<html><body>");
 
+        if (Objects.isNull(req.getPathInfo()) || req.getPathInfo().equals("/")) {
+            printWriter.write("<p> TimeZone: ${dateAndTime} </p>"
+                    .replace("${dateAndTime}", ZonedDateTime
+                            .now(ZoneId.of("UTC+2"))
+                            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"))));
+        }
 
-        synchronized (this) {
-            if (Objects.isNull(req.getPathInfo()) || req.getPathInfo().equals("/")) {
-                printWriter.write("<p> TimeZone: ${dateAndTime} </p>"
-                        .replace("${dateAndTime}", ZonedDateTime
-                                .now(ZoneId.of("UTC+2"))
-                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"))));
-            }
-
-            String param = URLEncoder.encode(req.getParameter("timezone"), "UTF-8");
-            if (!Objects.isNull(param)) {
-                printWriter.write(" <p>TimeZone: ${UTC} </p>"
-                        .replace("${UTC}", ZonedDateTime
-                                .now(ZoneId.of(param))
-                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"))));
-            }
+        String param = URLEncoder.encode(req.getParameter("timezone"), "UTF-8");
+        if (!Objects.isNull(param)) {
+            printWriter.write(" <p>TimeZone: ${UTC} </p>"
+                    .replace("${UTC}", ZonedDateTime
+                            .now(ZoneId.of(param))
+                            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"))));
         }
 
         printWriter.write("</body></html>");
