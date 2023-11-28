@@ -72,7 +72,8 @@ public class TimeServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String param = req.getParameter("timezone").replace("%2B", "+").replace(" ", "");
+        String param = req.getParameter("timezone");
+        param = (param != null) ? param.replace("%2B", "+").replace(" ", "") : "";
         if (param != null && !param.trim().isEmpty()) {
             Cookie cookie = new Cookie("lastTimezone", param.replace("%2B", "+"));
             cookie.setMaxAge(5);
