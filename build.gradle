@@ -1,10 +1,9 @@
 plugins {
     id 'java'
+    id 'war'
 }
 
 group = 'org.example'
-version = '1.0-SNAPSHOT'
-apply plugin: 'war'
 
 repositories {
     mavenCentral()
@@ -13,11 +12,15 @@ repositories {
 dependencies {
     // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
     compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+    // https://mvnrepository.com/artifact/org.thymeleaf/thymeleaf
+    implementation group: 'org.thymeleaf', name: 'thymeleaf', version: '3.1.2.RELEASE'
 
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
-
+war {
+    enabled=true
+}
 test {
     useJUnitPlatform()
 }
