@@ -9,18 +9,6 @@
 <h1 th:text="'time in the selected timezone: '"></h1>
 <div th:text="'Your Time: ' + ${BaseTime}"></div>
 <div th:text="'Time on zone: ' + ${timezone}"></div>
-<div th:text="'Time Cookie: ' + ${lastTimezone}"></div>
-
-
-<form action="/Servlet/time" method="post">
-    <div>
-        <label for="timezone"> UTC:</label>
-        <input type="text" name="timezone" id="timezone" placeholder="e.g., UTC+2"/>
-    </div>
-    <div>
-        <button type="submit">Send</button>
-    </div>
-</form>
 
 
 </body>

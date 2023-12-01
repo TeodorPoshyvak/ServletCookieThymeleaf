@@ -9,9 +9,11 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 
@@ -19,12 +21,10 @@ import java.util.regex.Pattern;
 public class TimeServlet extends HttpServlet {
 
     private TemplateEngine engine;
-    String zonedDateTime;
 
     @Override
     public void init() throws ServletException {
         engine = new TemplateEngine();
-        zonedDateTime = "";
         JavaxServletWebApplication jswa = JavaxServletWebApplication.buildApplication(this.getServletContext());
         WebApplicationTemplateResolver resolver = new WebApplicationTemplateResolver(jswa);
         resolver.setPrefix("/WEB-INF/template/");
@@ -55,32 +55,34 @@ public class TimeServlet extends HttpServlet {
             }
         }
 
-        String baseTimeUTC = ZonedDateTime.now(ZoneId.of(("UTC")))
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
-        if (cookieTime != null && !cookieTime.isEmpty()) {
-            baseTimeUTC = ZonedDateTime.now(ZoneId.of((cookieTime)))
+        String baseTimeUTC = "";
+        if (Objects.isNull(req.getPathInfo()) || req.getPathInfo().equals("/")) {
+            if (cookieTime != null && !cookieTime.isEmpty()) {
+                baseTimeUTC = ZonedDateTime.now(ZoneId.of((cookieTime)))
+                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
+            }else {
+                baseTimeUTC = ZonedDateTime.now(ZoneId.of(("UTC")))
+                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
+            }
+
+        }
+
+        String parameter = req.getParameter("timezone");
+        parameter = parameter != null ? URLEncoder.encode(parameter) : "";
+        Cookie lastTimezone = new Cookie("lastTimezone", parameter);
+        resp.addCookie(lastTimezone);
+
+
+        String parameterTimeZone = "";
+        if(!parameter.isEmpty()) {
+             parameterTimeZone = ZonedDateTime
+                    .now(ZoneId.of(parameter))
                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
         }
 
         Context context = new Context(req.getLocale(), Map.of("BaseTime", baseTimeUTC,
-                "timezone", zonedDateTime,
-                "lastTimezone", cookieTime));
-
+                "timezone", parameterTimeZone));
         engine.process("UTCtime", context, resp.getWriter());
         resp.getWriter().close();
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String param = req.getParameter("timezone");
-        param = (param != null) ? param.replace("%2B", "+").replace(" ", "") : "";
-        if (param != null && !param.trim().isEmpty()) {
-            Cookie cookie = new Cookie("lastTimezone", param.replace("%2B", "+"));
-            cookie.setMaxAge(5);
-            resp.addCookie(cookie);
-            zonedDateTime = ZonedDateTime.now(ZoneId.of(param))
-                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
-        }
-        resp.sendRedirect("/Servlet/time");
     }
 }
