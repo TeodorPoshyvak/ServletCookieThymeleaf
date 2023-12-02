@@ -68,7 +68,7 @@ public class TimeServlet extends HttpServlet {
         }
 
         String parameter = req.getParameter("timezone");
-        parameter = parameter != null ? URLEncoder.encode(parameter) : "";
+        parameter = parameter != null ?  URLEncoder.encode(parameter, "UTF-8").toUpperCase().replaceAll("%2B", "+").replaceAll("%2D", "-") : "";
         Cookie lastTimezone = new Cookie("lastTimezone", parameter);
         resp.addCookie(lastTimezone);
 
